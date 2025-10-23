@@ -99,8 +99,8 @@ class RevolutionaryMersenneDiscovery:
     
     def is_valid_mersenne_exponent_candidate(self, p: int) -> bool:
         """Check if a number is a valid Mersenne exponent candidate based on mathematical properties"""
-        # Must be > 52nd Mersenne prime
-        if p <= max(self.known_mersenne_primes):
+        # Must be > 52nd Mersenne prime (136,279,841)
+        if p <= 136279841:
             return False
         
         # Must be odd (except 2, but we're after 52nd)
@@ -174,9 +174,9 @@ class RevolutionaryMersenneDiscovery:
     
     def generate_intelligent_candidates(self, start: int, end: int, count: int = 1000) -> List[int]:
         """Generate VALID Mersenne exponent candidates using pattern analysis"""
-        # Ensure we only search after the 52nd known Mersenne prime
-        last_known = max(self.known_mersenne_primes)
-        effective_start = max(start, last_known + 1)
+        # Ensure we only search after the 52nd known Mersenne prime (136,279,841)
+        last_known = 136279841
+        effective_start = max(start, last_known + 2)  # Start with next odd number
         
         if effective_start > end:
             print(f"⚠️ No candidates possible: start ({start:,}) must be > last known Mersenne prime ({last_known:,})")
@@ -450,12 +450,12 @@ def main():
     
     # Get search parameters
     try:
-        start = int(input("Enter start range (e.g., 85000000): ") or "85000000")
-        end = int(input("Enter end range (e.g., 86000000): ") or "86000000")
+        start = int(input("Enter start range (e.g., 136279843): ") or "136279843")
+        end = int(input("Enter end range (e.g., 137279843): ") or "137279843")
         max_candidates = int(input("Enter max candidates (e.g., 10000): ") or "10000")
     except ValueError:
         print("❌ Invalid input, using defaults")
-        start, end, max_candidates = 85000000, 86000000, 10000
+        start, end, max_candidates = 136279843, 137279843, 10000
     
     # Run discovery
     try:

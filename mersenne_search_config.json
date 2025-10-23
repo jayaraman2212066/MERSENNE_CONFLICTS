@@ -25,9 +25,9 @@
   
   "search_ranges": {
     "range_1": {
-      "description": "Focused slice for quick Prime95 feedback",
-      "start": 85000000,
-      "end": 85200000,
+      "description": "Search after M52 (136,279,841) for M53 and beyond",
+      "start": 136279843,
+      "end": 136479843,
       "priority": "high"
     },
     "range_2": null,

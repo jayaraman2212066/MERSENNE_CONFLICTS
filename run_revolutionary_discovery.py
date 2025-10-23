@@ -20,8 +20,8 @@ from discovery_dashboard import DiscoveryDashboard
 def main():
     """Main function to run the revolutionary discovery system"""
     parser = argparse.ArgumentParser(description="Revolutionary Mersenne Prime Discovery System")
-    parser.add_argument("--start", type=int, default=85000000, help="Start range for search")
-    parser.add_argument("--end", type=int, default=86000000, help="End range for search")
+    parser.add_argument("--start", type=int, default=136279843, help="Start range for search (after M52)")
+    parser.add_argument("--end", type=int, default=137279843, help="End range for search")
     parser.add_argument("--candidates", type=int, default=10000, help="Maximum number of candidates to test")
     parser.add_argument("--workers", type=int, default=4, help="Number of worker threads")
     parser.add_argument("--config", type=str, default="mersenne_search_config.json", help="Configuration file")
@@ -33,10 +33,10 @@ def main():
     
     # Quick test mode
     if args.quick_test:
-        args.start = 85000000
-        args.end = 85001000
+        args.start = 136279843  # Start after M52
+        args.end = 136280843    # Small 1000 range for testing
         args.candidates = 1000
-        print("🧪 QUICK TEST MODE - Using smaller range for testing")
+        print("🧪 QUICK TEST MODE - Using smaller range for testing (after M52)")
     
     print("🚀 REVOLUTIONARY MERSENNE PRIME DISCOVERY SYSTEM 🚀")
     print("=" * 80)

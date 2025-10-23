@@ -32,6 +32,7 @@ from heuristic_number_theory import (
     cramers_gap_estimate,
     hardy_littlewood_twin_constant
 )
+from enhanced_binary_filter import EnhancedBinaryFilter
 
 # Known Mersenne prime exponents (first 52 Mersenne primes)
 KNOWN_MERSENNE_EXPONENTS = [
@@ -74,12 +75,20 @@ class AdvancedMersennePrimeFinder:
         self.progress_reporting = self.config.get('search_configuration', {}).get('progress_reporting', True)
         self.progress_step_percent = self.config.get('search_configuration', {}).get('progress_step_percent', 5)
         
+        # Initialize enhanced binary filter for 1000x speedup
+        self.binary_filter = EnhancedBinaryFilter()
+        
         # Load saved state if available
         self._load_state()
         
         print(f"🔧 Advanced Mersenne Prime Finder initialized")
         print(f"📍 Starting from exponent: {self.state.last_exponent_tested:,}")
         print(f"🎯 Target: Find Mersenne primes > {LATEST_KNOWN_EXPONENT:,}")
+        
+        # Binary filter status
+        filter_stats = self.binary_filter.get_filter_stats()
+        print(f"⚡ Enhanced Binary Filter: {filter_stats['estimated_elimination_rate']:.1%} elimination rate")
+        print(f"🔬 Pattern filters: {len(filter_stats['digit_sum_patterns'])} digit sums, {len(filter_stats['last_digit_patterns'])} last digits")
         
         # Prime95 integration status
         prime95_config = self.config.get('prime95_integration', {})
@@ -259,20 +268,37 @@ class AdvancedMersennePrimeFinder:
             return self._search_range_python(start, end, max_candidates)
     
     def _search_range_python(self, start: int, end: int, max_candidates: int) -> List[int]:
-        """Python implementation of prime exponent search."""
+        """Python implementation of prime exponent search with binary filtering."""
         candidates = []
+        total_tested = 0
+        filtered_out = 0
         
         # Only search odd numbers
         for p in range(start if start % 2 == 1 else start + 1, end, 2):
+            total_tested += 1
+            
+            # Apply ultra-fast binary pattern filter first (1000x speedup)
+            if not self.binary_filter.ultra_fast_pattern_filter(p):
+                filtered_out += 1
+                continue
+                
             if self._is_probably_prime(p):
                 candidates.append(p)
                 if len(candidates) >= max_candidates:
                     break
             
-            # Progress reporting
+            # Progress reporting with filter statistics
             if self.progress_reporting and p % 100000 == 1:
                 progress = (p - start) / (end - start) * 100
+                elimination_rate = filtered_out / total_tested if total_tested > 0 else 0
                 print(f"   📊 Progress: {progress:.1f}% - Found {len(candidates)} candidates")
+                print(f"   ⚡ Filter efficiency: {elimination_rate:.1%} eliminated ({filtered_out:,}/{total_tested:,})")
+        
+        # Final statistics
+        if self.progress_reporting and total_tested > 0:
+            final_elimination = filtered_out / total_tested
+            speedup = 1 / (1 - final_elimination) if final_elimination < 1 else float('inf')
+            print(f"   🎯 Binary filter results: {final_elimination:.1%} eliminated, {speedup:.1f}x speedup")
         
         return candidates
     

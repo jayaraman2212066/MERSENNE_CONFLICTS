@@ -1,20 +1,16 @@
 services:
   - type: web
-    name: mersenne-showcase
+    name: mersenne-conflicts
     env: python
     plan: free
+    repo: https://github.com/jayaraman2212066/MERSENNE_CONFLICTS.git
+    branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120 --graceful-timeout 30
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120
     healthCheckPath: /api/status
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.8
-      - key: WEB_CONCURRENCY
-        value: 1
-      - key: THREADS
-        value: 2
       - key: PYTHONDONTWRITEBYTECODE
         value: "1"
-      - key: TZ
-        value: UTC

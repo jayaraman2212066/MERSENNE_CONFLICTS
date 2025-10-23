@@ -29,8 +29,8 @@ class AdvancedCandidateGenerator:
     
     def is_valid_mersenne_exponent_candidate(self, p: int) -> bool:
         """Check if a number is a valid Mersenne exponent candidate based on mathematical properties"""
-        # Must be > 52nd Mersenne prime
-        if p <= max(self.known_mersenne_primes):
+        # Must be > 52nd Mersenne prime (136,279,841)
+        if p <= 136279841:
             return False
         
         # Must be odd (except 2, but we're after 52nd)
@@ -410,9 +410,9 @@ def main():
     
     generator = AdvancedCandidateGenerator()
     
-    # Test parameters
-    start = 85000000
-    end = 85100000
+    # Test parameters - always start after 52nd Mersenne exponent
+    start = 136279843  # Start after M52
+    end = 136379843    # 100,000 range for testing
     count = 1000
     
     print(f"Testing with range [{start:,}, {end:,}] and {count} candidates")
