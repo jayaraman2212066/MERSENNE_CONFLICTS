@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hybrid GIMPS + Enhanced Mersenne Dashboard</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #0a0a0a, #1a1a2e); color: #00ff41; margin: 0; padding: 20px; }
+        .header { text-align: center; border: 3px solid #00ff41; padding: 30px; margin-bottom: 30px; background: linear-gradient(45deg, #001100, #003300); border-radius: 10px; }
+        .title { font-size: 2.5em; margin-bottom: 15px; text-shadow: 0 0 10px #00ff41; }
+        .subtitle { font-size: 1.2em; color: #ffff00; margin-bottom: 20px; }
+        .hybrid-banner { background: linear-gradient(90deg, #004400, #440044, #004400); border: 2px solid #ff00ff; padding: 20px; margin: 20px 0; text-align: center; border-radius: 10px; }
+        .controls { text-align: center; margin: 30px 0; }
+        .btn { background: linear-gradient(45deg, #004400, #006600); color: #ffffff; border: 2px solid #00ff41; padding: 12px 25px; margin: 0 10px; cursor: pointer; border-radius: 25px; font-weight: bold; }
+        .btn:hover { background: linear-gradient(45deg, #006600, #008800); transform: scale(1.05); }
+        .btn:disabled { background: #333333; color: #666666; cursor: not-allowed; transform: none; }
+        .btn.hybrid { border-color: #ff00ff; background: linear-gradient(45deg, #440044, #660066); }
+        .discoveries { border: 2px solid #ffff00; padding: 25px; margin: 20px 0; background: linear-gradient(135deg, #1a1a00, #2a2a00); border-radius: 10px; }
+        .discovery-item { background: linear-gradient(90deg, #003300, #004400); border-left: 4px solid #00ff41; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .status { padding: 15px; margin: 15px 0; text-align: center; font-weight: bold; border-radius: 10px; }
+        .status.active { background: linear-gradient(45deg, #004400, #006600); border: 2px solid #00ff41; }
+        .status.inactive { background: linear-gradient(45deg, #440000, #660000); border: 2px solid #ff4444; color: #ff4444; }
+        .success { color: #00ff41; }
+        .warning { color: #ffff00; }
+        .hybrid { color: #ff00ff; }
+        .back-btn { position: fixed; top: 20px; left: 20px; z-index: 1000; }
+    </style>
+</head>
+<body>
+    <button class="btn back-btn" onclick="window.location.href='/'">← Back to Main</button>
+    
+    <div class="header">
+        <h1 class="title">HYBRID GIMPS + ENHANCED MERSENNE SYSTEM</h1>
+        <p class="subtitle">Revolutionary Combination: GIMPS Methodology + Enhanced Binary Filtering</p>
+    </div>
+    
+    <div class="hybrid-banner">
+        <h2 class="hybrid">HYBRID METHODOLOGY ADVANTAGE</h2>
+        <p>Combines proven GIMPS Lucas-Lehmer testing with revolutionary enhanced binary filtering</p>
+        <p><strong>SEARCH STATUS:</strong> Ready to search for M53+ after exponent 136,279,841</p>
+        <p><strong>STATUS:</strong> Advanced mathematical filtering system ready</p>
+    </div>
+    
+    <div class="status inactive" id="status">READY - Click Start to begin Mersenne prime discovery</div>
+    
+    <div class="controls">
+        <button class="btn hybrid" onclick="startHybrid()">Start HYBRID Method</button>
+        <button class="btn" onclick="stopHybrid()" id="stopBtn" disabled>Stop Discovery</button>
+        <button class="btn" onclick="exportResults()">Export Results</button>
+    </div>
+    
+    <div class="discoveries">
+        <h2>MERSENNE PRIME DISCOVERIES</h2>
+        <div id="discoveries-list">
+            <p class="warning">No new discoveries yet. System will search for M₅₃ and beyond (after exponent 136,279,841)!</p>
+        </div>
+    </div>
+    
+    <script>
+        let updateInterval;
+        
+        function startHybrid() {
+            fetch('/api/hybrid/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({method: 'hybrid'})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('status').textContent = 'ACTIVE - HYBRID method running';
+                    document.getElementById('status').className = 'status active';
+                    document.querySelector('.btn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    updateInterval = setInterval(updateStats, 1000);
+                }
+            });
+        }
+        
+        function stopHybrid() {
+            fetch('/api/hybrid/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status').textContent = 'READY - Discovery stopped';
+                    document.getElementById('status').className = 'status inactive';
+                    document.querySelector('.btn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    clearInterval(updateInterval);
+                });
+        }
+        
+        function updateStats() {
+            fetch('/api/hybrid/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.discoveries && data.discoveries.length > 0) {
+                        updateDiscoveries(data.discoveries);
+                    }
+                });
+        }
+        
+        function updateDiscoveries(discoveries) {
+            const container = document.getElementById('discoveries-list');
+            container.innerHTML = '';
+            
+            discoveries.forEach((discovery, index) => {
+                const item = document.createElement('div');
+                item.className = 'discovery-item';
+                item.innerHTML = 
+                    '<h3 class="success">NEW MERSENNE PRIME DISCOVERED!</h3>' +
+                    '<p><strong>Method:</strong> ' + discovery.method + '</p>' +
+                    '<p><strong>Exponent:</strong> ' + discovery.exponent.toLocaleString() + '</p>' +
+                    '<p><strong>Mersenne Number:</strong> 2^' + discovery.exponent + ' - 1</p>' +
+                    '<p><strong>Timestamp:</strong> ' + discovery.timestamp + '</p>';
+                container.appendChild(item);
+            });
+        }
+        
+        function exportResults() {
+            const results = {
+                hybrid_methodology: {
+                    description: 'Hybrid GIMPS + Enhanced Mersenne Filter System',
+                    status: 'Advanced mathematical filtering active'
+                },
+                discoveries: []
+            };
+            
+            const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hybrid_mersenne_results.json';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        setInterval(updateStats, 2000);
+    </script>
+</body>
+</html>
